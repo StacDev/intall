@@ -65,21 +65,53 @@ main() {
     bin_dir="$STAC_INSTALL_DIR"
     mkdir -p "$bin_dir"
   else
-    # Prefer ~/.local/bin or /usr/local/bin
-    if [[ -d "$HOME/.local/bin" ]]; then
-      bin_dir="$HOME/.local/bin"
-    else
-      bin_dir="/usr/local/bin"
-    fi
-    mkdir -p "$bin_dir" || true
+    # Install to ~/.stac/bin by default
+    bin_dir="$HOME/.stac/bin"
+    mkdir -p "$bin_dir"
   fi
 
   install -m 0755 "$tmpdir/stac" "$bin_dir/$BIN_NAME"
   _log "Installed to $bin_dir/$BIN_NAME"
 
   case :$PATH: in
-    *:$bin_dir:*) : ;;
-    *) _log "WARNING: $bin_dir not in PATH. Add: export PATH=\"$bin_dir:\$PATH\"" ;;
+    *:$bin_dir:*) 
+      _log "✓ $bin_dir is already in PATH" 
+      ;;
+    *) 
+      _log "Adding $bin_dir to PATH..."
+      # Auto-update shell profiles for ~/.stac/bin
+      if [[ "$bin_dir" == "$HOME/.stac/bin" ]] && [[ -z "${STAC_NO_PATH_UPDATE:-}" ]]; then
+        updated_profile=""
+        for profile in ~/.zshrc ~/.bashrc ~/.bash_profile ~/.profile; do
+          # Create profile if it doesn't exist and matches current shell
+          if [[ ! -f "$profile" ]]; then
+            if [[ "$profile" == ~/.zshrc && "$SHELL" == *zsh* ]]; then
+              touch "$profile"
+            elif [[ "$profile" == ~/.bashrc && "$SHELL" == *bash* ]]; then
+              touch "$profile"
+            fi
+          fi
+          
+          # Update existing profiles
+          if [[ -f "$profile" ]]; then
+            if ! grep -q "\.stac/bin" "$profile" 2>/dev/null; then
+              echo 'export PATH="$HOME/.stac/bin:$PATH"' >> "$profile"
+              updated_profile="$profile"
+              _log "✓ Added to PATH in $profile"
+              break
+            fi
+          fi
+        done
+        
+        if [[ -n "$updated_profile" ]]; then
+          _log "Run: source $updated_profile  # or restart your terminal"
+        else
+          _log "Add manually: export PATH=\"$bin_dir:\$PATH\""
+        fi
+      else
+        _log "Add to PATH: export PATH=\"$bin_dir:\$PATH\""
+      fi
+      ;;
   esac
 
   _log "Run: stac --help"
