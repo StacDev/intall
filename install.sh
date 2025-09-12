@@ -33,7 +33,7 @@ _download() {
 
 _latest_tag() {
   # Requires public repo
-  curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | sed -n 's/.*"tag_name":\s*"\([^"]*\)".*/\1/p'
+  curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p'
 }
 
 main() {
