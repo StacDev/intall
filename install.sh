@@ -94,17 +94,23 @@ main() {
           
           # Update existing profiles
           if [[ -f "$profile" ]]; then
-            if ! grep -q "\.stac/bin" "$profile" 2>/dev/null; then
+            if ! grep -q "\.stac/bin\|\.stac\/bin" "$profile" 2>/dev/null; then
               echo 'export PATH="$HOME/.stac/bin:$PATH"' >> "$profile"
               updated_profile="$profile"
               _log "✓ Added to PATH in $profile"
+              break
+            else
+              _log "✓ PATH already configured in $profile"
+              updated_profile="found"
               break
             fi
           fi
         done
         
-        if [[ -n "$updated_profile" ]]; then
+        if [[ -n "$updated_profile" && "$updated_profile" != "found" ]]; then
           _log "Run: source $updated_profile  # or restart your terminal"
+        elif [[ "$updated_profile" == "found" ]]; then
+          _log "PATH is already configured. You may need to restart your terminal."
         else
           _log "Add manually: export PATH=\"$bin_dir:\$PATH\""
         fi
