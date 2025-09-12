@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${STAC_RELEASES_REPO:-stac-app/releases}" # fallback org/repo if not set
+REPO="${STAC_RELEASES_REPO:-StacDev/intall}" # fallback org/repo if not set
 VERSION="${STAC_VERSION:-latest}"
 BIN_NAME="stac"
 
@@ -55,7 +55,7 @@ main() {
 
   url="https://github.com/${REPO}/releases/download/${tag}/${asset}"
   tmpdir=$(mktemp -d)
-  trap 'rm -rf "$tmpdir"' EXIT
+  trap 'rm -rf "${tmpdir:-}"' EXIT
   _log "Downloading $asset from $REPO ($tag)"
   _download "$url" "$tmpdir/$asset"
 
