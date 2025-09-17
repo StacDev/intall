@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 function Write-Log { param([string]$m) Write-Host "[stac_cli] $m" }
 function Write-Err { param([string]$m) Write-Error "[stac_cli] $m" }
 
-$Repo = if ($env:STAC_RELEASES_REPO) { $env:STAC_RELEASES_REPO } else { 'stac-app/releases' }
+$Repo = if ($env:STAC_RELEASES_REPO) { $env:STAC_RELEASES_REPO } else { 'StacDev/install' }
 if (-not $Version -or $Version -eq '') { $Version = 'latest' }
 
 function Get-Arch {
